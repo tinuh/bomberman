@@ -19,13 +19,13 @@ loadSprite("player", 'sprites/character.png', {
 
 let level1 = [
   "===============",
-  "=             =",
-  "=             =",
-  "=             =",
-  "=             =",
-  "=             =",
-  "=             =",
-  "=             =",
+  "=  =       =  =",
+  "=    =        =",
+  "===       =   =",
+  "=      =      =",
+  "=  =       =  =",
+  "=      =     ==",
+  "=      =  =   =",
   "===============",
 ]
 
@@ -47,7 +47,7 @@ const player = add([
 	sprite("player", {
 			animSpeed: 0.1,
 		}),
-	pos(80, 40),
+	pos(160, 120),
 	area(),
   scale(3),
   solid(),
@@ -97,7 +97,7 @@ onKeyRelease("down", () => {
 })
 
 
-// add a kaboom on mouse click
+// add a kaboom on mouse click and move the player
 onClick(() => {
 	addKaboom(mousePos())
   player.moveTo(mousePos())
