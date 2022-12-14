@@ -120,7 +120,7 @@ function explode(location){
           animSpeed: 5,
         }),
       "boom",
-      pos(location.add(Math.sin(i*90)*-10,Math.cos(i*90)*10)),
+      pos(location.add(Math.sin(i*90)*-10,-10+Math.cos(i*90)*10)),
       area(i%2 === 0 ? 
         { width: 40, height: 10 } : 
         { width: 10, height: 40 } ),
@@ -149,6 +149,7 @@ onUpdate("boom", (b) => {
   if(!b.exploding){
     b.play("explode")
     if(b.angle === 180){
+      b.pos.x -= 10
       b.area.offset.x -= 20
       b.area.offset.y += 10
     }
@@ -163,11 +164,11 @@ onUpdate("boom", (b) => {
     if(b.time < 10){
       b.move(pointAt(300, b.angle))
     }
-    else if(b.time > 30 && b.time < 140){
+    else if(b.time > 30 && b.time < 80){
       b.scale.x = b.scale.x*0.9
       b.scale.y = b.scale.y*0.9
     }
-    else if(b.time > 140){
+    else if(b.time > 80){
       destroy(b)
     }
   }
