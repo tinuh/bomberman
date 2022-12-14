@@ -120,10 +120,12 @@ function explode(location){
           animSpeed: 5,
         }),
       "boom",
-      pos(location),
-      area({ width: 40, height: 20 }),
-      origin(vec2(-0.3, 0.1)),
+      pos(location.add(Math.sin(i*90)*-10,Math.cos(i*90)*10)),
+      area(i%2 === 0 ? 
+        { width: 40, height: 10 } : 
+        { width: 10, height: 40 } ),
       scale(2),
+      origin(vec2(-0.3,0.1)),
       color(255, 200, 0),
       cleanup(),
       {
@@ -139,9 +141,20 @@ function pointAt(distance, angle) {
   return vec2(distance * Math.cos(radians), -distance * Math.sin(radians));
 }
 
+onCollide("player", "boom", () => {
+  console.log("death")
+})
+
 onUpdate("boom", (b) => {
   if(!b.exploding){
     b.play("explode")
+    if(b.angle === 180){
+      b.area.offset.x -= 20
+      b.area.offset.y += 10
+    }
+    if(b.angle === 90){
+      b.area.offset.y += 20
+    }
     b.exploding = true
     b.time = 0;
   }
@@ -162,7 +175,6 @@ onUpdate("boom", (b) => {
 
 let timer = 1
 onUpdate("bomb", (b) => {
-  console.log(b)
   if(timer === 60){
     timer = 1
   }
