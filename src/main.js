@@ -10,7 +10,7 @@ if (!isFocused()) {
 
 //load the background image and set as background
 const loadBg = async () => {
-	let bgImage = await loadSprite("background", "/sprites/grass.png");
+	let bgImage = await loadSprite("background", "sprites/grass.png");
 
 	let background = add([
 		sprite("background"),
@@ -40,6 +40,14 @@ const init = async () => {
 		anims: {
 			idle: { from: 0, to: 0 },
 			run: { from: 1, to: 3 },
+		},
+	});
+	loadSprite("enemy", "sprites/floateye.png", {
+		sliceX: 3,
+		sliceY: 3,
+		anims: {
+			idle: { from: 0, to: 2 },
+			run: { from: 3, to: 5 },
 		},
 	});
 
@@ -73,6 +81,18 @@ const init = async () => {
 		solid(),
 	]);
 	let animationSpeed = 0;
+
+	//add 1 enemy
+	add([
+		sprite("enemy"),
+		{
+			animSpeed: 0.075,
+		},
+		pos(400, 400),
+		area(),
+		solid(),
+		scale(1),
+	]);
 
 	function animateMove() {
 		//currently hardcoded
