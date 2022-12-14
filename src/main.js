@@ -34,6 +34,7 @@ const init = async () => {
 // load assets
 loadSprite("bean", "sprites/bean.png")
 loadSprite("stone", "sprites/StoneGround.png")
+loadSprite("bomb", "sprites/bomb.png")
 loadSprite("player", 'sprites/character.png', {
 	sliceX: 4,
 	sliceY: 0,
@@ -75,7 +76,7 @@ loadSprite("boom", "sprites/explosion.png", {
 		width: 70,
 		height: 70,
 		"=": () => [sprite("stone"), pos(80, 40), area(), scale(2.3), solid()],
-	});
+	  })
 
 // add a character to screen
 const player = add([
@@ -228,4 +229,5 @@ onKeyRelease("down", () => {
     player.play("idle")
 })
 
-init();
+};
+init()
