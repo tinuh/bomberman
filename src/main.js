@@ -1,15 +1,40 @@
-import kaboom from "kaboom"
+import kaboom from "kaboom";
 
 // initialize context
-kaboom({
-  background: [145, 137, 137], // The RGB code
-})
+kaboom();
+
+//focus page if not focused
+if (!isFocused()) {
+	canvas.focus();
+}
+
+//load the background image and set as background
+const loadBg = async () => {
+	let bgImage = await loadSprite("background", "sprites/grass.png");
+
+	let background = add([
+		sprite("background"),
+		// Make the background centered on the screen
+		pos(width() / 2, height() / 2),
+		origin("center"),
+		// Allow the background to be scaled
+		scale(1),
+		// Keep the background position fixed even when the camera moves
+		fixed(),
+	]);
+
+	await background.scaleTo(
+		Math.max(width() / bgImage.tex.width, height() / bgImage.tex.height)
+	);
+};
+
+const init = async () => {
+	await loadBg();
 
 // load assets
 loadSprite("bean", "sprites/bean.png")
 loadSprite("stone", "sprites/StoneGround.png")
-loadSprite("bomb", "sprites/bomb.png")
-loadSprite("player", "sprites/character.png", {
+loadSprite("player", 'sprites/character.png', {
 	sliceX: 4,
 	sliceY: 0,
 	anims: {
@@ -17,7 +42,14 @@ loadSprite("player", "sprites/character.png", {
 		run: { from: 1, to: 3 }
 	}
 })
-
+loadSprite("enemy", "sprites/floateye.png", {
+  sliceX: 3,
+  sliceY: 3,
+  anims: {
+    idle: { from: 0, to: 2 },
+    run: { from: 3, to: 5 },
+  },
+})
 loadSprite("boom", "sprites/explosion.png", {
   sliceX: 0,
   sliceY: 54,
@@ -27,29 +59,23 @@ loadSprite("boom", "sprites/explosion.png", {
 	}
 })
 
-let level1 = [
-  "===============",
-  "=  =       =  =",
-  "=    =        =",
-  "===       =   =",
-  "=      =      =",
-  "=  =       =  =",
-  "=      =     ==",
-  "=      =  =   =",
-  "===============",
-]
+	let level1 = [
+		"===============",
+		"=  =       =  =",
+		"=    =        =",
+		"===       =   =",
+		"=      =      =",
+		"=  =       =  =",
+		"=      =     ==",
+		"=      =  =   =",
+		"===============",
+	];
 
-addLevel(level1, 
-         {width: 70,
-        height: 70,
-        "=": () => [
-          sprite("stone"),
-	        pos(80, 40),
-        	area(),
-          scale(2.3),
-          solid(),
-        ]}
-      )
+	addLevel(level1, {
+		width: 70,
+		height: 70,
+		"=": () => [sprite("stone"), pos(80, 40), area(), scale(2.3), solid()],
+	});
 
 // add a character to screen
 const player = add([
@@ -156,6 +182,7 @@ onUpdate("bomb", (b) => {
 })
 
 let animationSpeed = 0
+
 function animateMove(){
   //currently hardcoded
   if(animationSpeed % 5 === 0){
@@ -168,8 +195,9 @@ function animateMove(){
   }
   animationSpeed += 1
 }
+
 onKeyPress("space", () => {
-    placeBomb()
+  placeBomb()
 })
 onKeyDown("right", () => {
     player.move(100, 0)
@@ -200,16 +228,4 @@ onKeyRelease("down", () => {
     player.play("idle")
 })
 
-
-// add a kaboom on mouse click and move the player
-onClick(() => {
-	addKaboom(mousePos())
-  player.moveTo(mousePos())
-})
-
-onCollide("boom", "player", () => {
-  console.log("death")
-})
-
-// burp on "b"
-onKeyPress("b", burp)
+init();
