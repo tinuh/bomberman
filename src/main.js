@@ -1,7 +1,9 @@
 import kaboom from "kaboom";
 
 // initialize context
-kaboom();
+kaboom({
+	scale: 1,
+});
 
 //focus page if not focused
 if (!isFocused()) {
@@ -96,30 +98,39 @@ const init = async () => {
 		}),
 		"player",
 		pos(180, 140),
+		health(10),
 		origin("center"),
 		area(),
 		scale(3),
 		solid(),
 	]);
 
-	const slime = add([
-		sprite("slime", {
-			animSpeed: 1,
-		}),
-		"enemy",
-		"slime",
-		"pain",
-		pos(180, 180),
-		origin("center"),
-		area({ width: 15, height: 12 }),
-		origin(vec2(0, 0.25)),
-		scale(3),
-		solid(),
-		{
-			moveDir: RIGHT,
-			dead: false,
-		},
-	]);
+	const addSlime = () => {
+		add([
+			sprite("slime", {
+				animSpeed: 1,
+			}),
+			"enemy",
+			"slime",
+			"pain",
+			pos(180, 180),
+			origin("center"),
+			area({ width: 15, height: 12 }),
+			origin(vec2(0, 0.25)),
+			scale(3),
+			solid(),
+			{
+				moveDir: RIGHT,
+				dead: false,
+			},
+		]);
+	};
+
+	setInterval(() => {
+		addSlime();
+	}, 15000);
+
+	addSlime();
 
 	function placeBomb() {
 		add([
@@ -185,6 +196,16 @@ const init = async () => {
 		wait(0.8, () => {
 			destroy(slime);
 		});
+	});
+
+	player.onCollide("pain", () => {
+		player.hurt(1);
+		player.color = { r: 255, b: 0, g: 0 };
+		wait(0.2, () => (player.color = { r: 255, b: 255, g: 255 }));
+	});
+
+	player.on("death", () => {
+		destroy(player);
 	});
 
 	onUpdate("boom", (b) => {
@@ -260,7 +281,6 @@ const init = async () => {
 
 	onKeyPress("space", () => {
 		placeBomb();
-		slime.play("idle");
 	});
 	onKeyDown("right", () => {
 		player.move(100, 0);
