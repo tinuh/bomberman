@@ -98,12 +98,19 @@ const init = async () => {
 			animSpeed: 0.1,
 		}),
 		"player",
+		"mobile",
 		pos(180, 140),
 		health(10),
 		origin("center"),
 		area(),
 		scale(3),
 		solid(),
+		{
+			moving: false,
+			frame_max: 4,
+			anim_timer: 0,
+			move_anim_speed: 10,
+		}
 	]);
 
 	const addSlime = (x, y) => {
@@ -114,6 +121,7 @@ const init = async () => {
 			"enemy",
 			"slime",
 			"pain",
+			"mobile",
 			pos(x, y),
 			origin("center"),
 			area({ width: 15, height: 12 }),
@@ -123,7 +131,11 @@ const init = async () => {
 			{
 				moveDir: RIGHT,
 				dead: false,
-				oneMove: 0
+				oneMove: 0,
+				moving: true,
+				frame_max: 4,
+				anim_timer: 0,
+				move_anim_speed: 8,
 			},
 		]);
 	};
@@ -283,7 +295,6 @@ const init = async () => {
 
 	onUpdate("slime", (s) => {
 		if (!s.dead) {
-			animateMove(s, 7, 4);
 			s.move(s.moveDir.scale(40));
 			if (Math.random() < 0.005) {
 				dirs = [RIGHT, LEFT, UP, DOWN];
@@ -292,50 +303,54 @@ const init = async () => {
 		}
 	});
 
-	let animationCount = 0;
-
-	function animateMove(obj, animationSpeed, max) {
-		//currently hardcoded
-		if (animationCount % animationSpeed === 0) {
-			if (obj.frame < max - 1) {
-				obj.frame += 1;
-			} else {
-				obj.frame = 0;
+	onUpdate("mobile", (obj) => {
+		if(!obj.dead){
+			if(obj.moving && obj.anim_timer <= 0){
+				if (obj.frame < obj.frame_max - 1) {
+					obj.frame += 1;
+				} else {
+					obj.frame = 0;
+				}
+				obj.anim_timer = obj.move_anim_speed
 			}
+			obj.anim_timer -= 1
 		}
-		animationCount += 1;
-	}
+	})
 
 	onKeyPress("space", () => {
 		placeBomb();
 	});
 	onKeyDown("right", () => {
 		player.move(100, 0);
-		animateMove(player, 5, 4);
+		player.moving = true
 	});
 	onKeyDown("left", () => {
 		player.move(-100, 0);
-		animateMove(player, 5, 4);
+		player.moving = true
 	});
 	onKeyDown("up", () => {
 		player.move(0, -100);
-		animateMove(player, 5, 4);
+		player.moving = true
 	});
 	onKeyDown("down", () => {
 		player.move(0, 100);
-		animateMove(player, 5, 4);
+		player.moving = true
 	});
 	onKeyRelease("right", () => {
 		player.play("idle");
+		player.moving = false
 	});
 	onKeyRelease("left", () => {
 		player.play("idle");
+		player.moving = false
 	});
 	onKeyRelease("up", () => {
 		player.play("idle");
+		player.moving = false
 	});
 	onKeyRelease("down", () => {
 		player.play("idle");
+		player.moving = false
 	});
 };
 init();
