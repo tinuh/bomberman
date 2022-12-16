@@ -79,10 +79,11 @@ const init = async () => {
 	addLevel(level1, {
 		width: 70,
 		height: 70,
-		"=": () => [sprite("stone"), pos(80, 40), area(), scale(2.3), solid()],
+		"=": () => [sprite("stone"), "wall", pos(80, 40), area(), scale(2.3), solid()],
 		"^": () => [
 			sprite("breakableStone"),
 			"breakableStone",
+			"wall",
 			pos(80, 40),
 			area(),
 			scale(0.16, 0.17),
@@ -105,7 +106,7 @@ const init = async () => {
 		solid(),
 	]);
 
-	const addSlime = () => {
+	const addSlime = (x, y) => {
 		add([
 			sprite("slime", {
 				animSpeed: 1,
@@ -113,7 +114,7 @@ const init = async () => {
 			"enemy",
 			"slime",
 			"pain",
-			pos(180, 180),
+			pos(x, y),
 			origin("center"),
 			area({ width: 15, height: 12 }),
 			origin(vec2(0, 0.25)),
@@ -122,15 +123,16 @@ const init = async () => {
 			{
 				moveDir: RIGHT,
 				dead: false,
+				oneMove: 0
 			},
 		]);
 	};
 
 	setInterval(() => {
-		addSlime();
-	}, 15000);
+		addSlime(200 + Math.random()*400, 200 + Math.random() * 200);
+	}, 8000);
 
-	addSlime();
+	addSlime(400, 400);
 
 	function placeBomb() {
 		add([
@@ -188,6 +190,31 @@ const init = async () => {
 
 	onCollide("boom", "breakableStone", (boom, breakableStone) => {
 		destroy(breakableStone);
+	});
+
+	onCollide("slime", "wall", (slime) => {
+		if(slime.oneMove <= 0){
+			slime.oneMove += 1
+			switch(slime.moveDir) {
+				case LEFT:
+					slime.moveDir = RIGHT
+					slime.move(RIGHT.scale(100))
+					break;
+				case RIGHT:
+					slime.moveDir = LEFT
+					slime.move(RIGHT.scale(100))
+					break;
+				case DOWN:
+					slime.moveDir = UP
+					slime.move(UP.scale(100))
+					break;
+				case UP:
+					slime.moveDir = DOWN
+					slime.move(DOWN.scale(100))
+					break;
+				}
+		}
+		slime.oneMove -= 0.1
 	});
 
 	onCollide("slime", "boom", (slime) => {
