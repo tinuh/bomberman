@@ -51,7 +51,16 @@ const init = async () => {
 			explode: { from: 1, to: 53 },
 		},
 	});
-  loadSprite("breakableStone", "sprites/brick1.png");
+
+	loadSprite("slime", "sprites/slime.png", {
+		sliceX: 7,
+		sliceY: 5,
+		anims: {
+			idle: { from: 0, to: 4 },
+			death: { from: 28, to: 32 },
+		},
+	});
+	loadSprite("breakableStone", "sprites/brick1.png");
 
 	let level1 = [
 		"====^==========",
@@ -69,7 +78,14 @@ const init = async () => {
 		width: 70,
 		height: 70,
 		"=": () => [sprite("stone"), pos(80, 40), area(), scale(2.3), solid()],
-    "^": () => [sprite("breakableStone"), "breakableStone", pos(80, 40), area(), scale(0.16, 0.17), solid()],
+		"^": () => [
+			sprite("breakableStone"),
+			"breakableStone",
+			pos(80, 40),
+			area(),
+			scale(0.16, 0.17),
+			solid(),
+		],
 	});
 
 	// add a character to screen
@@ -84,6 +100,25 @@ const init = async () => {
 		area(),
 		scale(3),
 		solid(),
+	]);
+
+	const slime = add([
+		sprite("slime", {
+			animSpeed: 1,
+		}),
+		"enemy",
+		"slime",
+		"pain",
+		pos(180, 180),
+		origin("center"),
+		area({ width: 15, height: 12 }),
+		origin(vec2(0, 0.25)),
+		scale(3),
+		solid(),
+		{
+			moveDir: RIGHT,
+			dead: false,
+		},
 	]);
 
 	function placeBomb() {
@@ -114,6 +149,7 @@ const init = async () => {
 					animSpeed: 5,
 				}),
 				"boom",
+				"pain",
 				pos(location.add(Math.sin(i * 90) * -10, -10 + Math.cos(i * 90) * 10)),
 				area(
 					i % 2 === 0 ? { width: 40, height: 10 } : { width: 10, height: 40 }
@@ -141,6 +177,14 @@ const init = async () => {
 
 	onCollide("boom", "breakableStone", (boom, breakableStone) => {
 		destroy(breakableStone);
+	});
+
+	onCollide("slime", "boom", (slime) => {
+		slime.dead = true;
+		slime.play("death");
+		wait(0.8, () => {
+			destroy(slime);
+		});
 	});
 
 	onUpdate("boom", (b) => {
@@ -189,38 +233,50 @@ const init = async () => {
 		}
 	});
 
-	let animationSpeed = 0;
-
-	function animateMove() {
-		//currently hardcoded
-		if (animationSpeed % 5 === 0) {
-			if (player.frame < 3) {
-				player.frame += 1;
-			} else {
-				player.frame = 1;
+	onUpdate("slime", (s) => {
+		if (!s.dead) {
+			animateMove(s, 7, 4);
+			s.move(s.moveDir.scale(40));
+			if (Math.random() < 0.005) {
+				dirs = [RIGHT, LEFT, UP, DOWN];
+				s.moveDir = dirs[Math.floor(Math.random() * dirs.length)];
 			}
 		}
-		animationSpeed += 1;
+	});
+
+	let animationCount = 0;
+
+	function animateMove(obj, animationSpeed, max) {
+		//currently hardcoded
+		if (animationCount % animationSpeed === 0) {
+			if (obj.frame < max - 1) {
+				obj.frame += 1;
+			} else {
+				obj.frame = 0;
+			}
+		}
+		animationCount += 1;
 	}
 
 	onKeyPress("space", () => {
 		placeBomb();
+		slime.play("idle");
 	});
 	onKeyDown("right", () => {
 		player.move(100, 0);
-		animateMove();
+		animateMove(player, 5, 4);
 	});
 	onKeyDown("left", () => {
 		player.move(-100, 0);
-		animateMove();
+		animateMove(player, 5, 4);
 	});
 	onKeyDown("up", () => {
 		player.move(0, -100);
-		animateMove();
+		animateMove(player, 5, 4);
 	});
 	onKeyDown("down", () => {
 		player.move(0, 100);
-		animateMove();
+		animateMove(player, 5, 4);
 	});
 	onKeyRelease("right", () => {
 		player.play("idle");
