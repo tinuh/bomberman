@@ -45,6 +45,13 @@ const init = async () => {
 			run: { from: 1, to: 3 },
 		},
 	});
+	loadSprite("death", "sprites/characterDeath.png", {
+		sliceX: 4,
+		sliceY: 0,
+		anims: {
+			death: { from: 0, to: 3 },
+		},
+	});
 	loadSprite("boom", "sprites/explosion.png", {
 		sliceX: 0,
 		sliceY: 54,
@@ -264,6 +271,24 @@ const init = async () => {
 
 	player.on("death", () => {
 		destroy(player);
+		const death = add([
+			// list of components
+			sprite("death", {
+				animSpeed: 1,
+			}),
+			pos(player.pos.x, player.pos.y),
+			health(10),
+			origin("center"),
+			area(),
+			scale(3),
+			{
+				moving: true,
+				frame_max: 4,
+				anim_timer: 0,
+				move_anim_speed: 4,
+			},
+		]);
+		death.play("death")
 	});
 
 	onUpdate("boom", (b) => {
