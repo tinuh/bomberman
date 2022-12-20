@@ -266,13 +266,15 @@ const init = async () => {
 	});
 
 	onCollide("slime", "boom", (slime) => {
-		slime.dead = true;
-		slime.play("death");
-		score.value += 1;
-		score.text = `Score: ${score.value}`;
-		wait(0.8, () => {
-			destroy(slime);
-		});
+		if(slime.dead === false){
+			slime.dead = true;
+			slime.play("death");
+			score.value += 1;
+			score.text = `Score: ${score.value}`;
+			wait(0.8, () => {
+				destroy(slime);
+			});
+		}
 	});
 
 	player.onCollide("pain", () => {
