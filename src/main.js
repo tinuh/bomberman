@@ -80,6 +80,24 @@ const init = async () => {
 		}),
 		{ value: 0 },
 	]);
+	loadSprite("bombs", "sprites/bomb.png");
+	add([sprite("bombs"), scale(0.175), pos(250, 0)]);
+	const bombs = add([
+		pos(290, 10),
+		z(1),
+		text("10", {
+			size: 24,
+			width: 320,
+			font: "sink",
+		}),
+		{ value: 10 },
+	]);
+	setInterval(() => {
+		if (bombs.value < 10) {
+			bombs.value++;
+			bombs.text = bombs.value;
+		}
+	}, 2000);
 
 	let level1 = [
 		"====^==========",
@@ -183,6 +201,7 @@ const init = async () => {
 	addSlime(1000, 600);
 
 	function placeBomb() {
+		if (bombs.value <= 0) return;
 		add([
 			// list of components
 			sprite("bomb", {
@@ -200,6 +219,8 @@ const init = async () => {
 				fuse: 0,
 			},
 		]);
+		bombs.value--;
+		bombs.text = bombs.value;
 	}
 
 	function explode(location) {
@@ -266,7 +287,7 @@ const init = async () => {
 	});
 
 	onCollide("slime", "boom", (slime) => {
-		if(slime.dead === false){
+		if (slime.dead === false) {
 			slime.dead = true;
 			slime.play("death");
 			score.value += 1;
@@ -302,7 +323,7 @@ const init = async () => {
 				move_anim_speed: 4,
 			},
 		]);
-		death.play("death")
+		death.play("death");
 	});
 
 	onUpdate("boom", (b) => {
