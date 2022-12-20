@@ -79,7 +79,14 @@ const init = async () => {
 	addLevel(level1, {
 		width: 70,
 		height: 70,
-		"=": () => [sprite("stone"), "wall", pos(80, 40), area(), scale(2.3), solid()],
+		"=": () => [
+			sprite("stone"),
+			"wall",
+			pos(80, 40),
+			area(),
+			scale(2.3),
+			solid(),
+		],
 		"^": () => [
 			sprite("breakableStone"),
 			"breakableStone",
@@ -110,7 +117,7 @@ const init = async () => {
 			frame_max: 4,
 			anim_timer: 0,
 			move_anim_speed: 10,
-		}
+		},
 	]);
 
 	const addSlime = (x, y) => {
@@ -141,10 +148,22 @@ const init = async () => {
 	};
 
 	setInterval(() => {
-		addSlime(200 + Math.random()*400, 200 + Math.random() * 200);
+		let x = Math.random() * 1000;
+		let y = Math.random() * 600;
+
+		//check if x and y are within 100 of player.pos.x and player.pos.y
+		//if they are, generate new x and y
+		while (
+			(x > player.pos.x - 100 && x < player.pos.x + 100) ||
+			(y > player.pos.y - 100 && y < player.pos.y + 100)
+		) {
+			x = Math.random() * 1000;
+			y = Math.random() * 600;
+		}
+		addSlime(200 + Math.random() * 400, 200 + Math.random() * 200);
 	}, 8000);
 
-	addSlime(400, 400);
+	addSlime(1000, 600);
 
 	function placeBomb() {
 		add([
@@ -205,28 +224,28 @@ const init = async () => {
 	});
 
 	onCollide("slime", "wall", (slime) => {
-		if(slime.oneMove <= 0){
-			slime.oneMove += 1
-			switch(slime.moveDir) {
+		if (slime.oneMove <= 0) {
+			slime.oneMove += 1;
+			switch (slime.moveDir) {
 				case LEFT:
-					slime.moveDir = RIGHT
-					slime.move(RIGHT.scale(100))
+					slime.moveDir = RIGHT;
+					slime.move(RIGHT.scale(100));
 					break;
 				case RIGHT:
-					slime.moveDir = LEFT
-					slime.move(RIGHT.scale(100))
+					slime.moveDir = LEFT;
+					slime.move(RIGHT.scale(100));
 					break;
 				case DOWN:
-					slime.moveDir = UP
-					slime.move(UP.scale(100))
+					slime.moveDir = UP;
+					slime.move(UP.scale(100));
 					break;
 				case UP:
-					slime.moveDir = DOWN
-					slime.move(DOWN.scale(100))
+					slime.moveDir = DOWN;
+					slime.move(DOWN.scale(100));
 					break;
-				}
+			}
 		}
-		slime.oneMove -= 0.1
+		slime.oneMove -= 0.1;
 	});
 
 	onCollide("slime", "boom", (slime) => {
@@ -304,53 +323,53 @@ const init = async () => {
 	});
 
 	onUpdate("mobile", (obj) => {
-		if(!obj.dead){
-			if(obj.moving && obj.anim_timer <= 0){
+		if (!obj.dead) {
+			if (obj.moving && obj.anim_timer <= 0) {
 				if (obj.frame < obj.frame_max - 1) {
 					obj.frame += 1;
 				} else {
 					obj.frame = 0;
 				}
-				obj.anim_timer = obj.move_anim_speed
+				obj.anim_timer = obj.move_anim_speed;
 			}
-			obj.anim_timer -= 1
+			obj.anim_timer -= 1;
 		}
-	})
+	});
 
 	onKeyPress("space", () => {
 		placeBomb();
 	});
 	onKeyDown("right", () => {
 		player.move(100, 0);
-		player.moving = true
+		player.moving = true;
 	});
 	onKeyDown("left", () => {
 		player.move(-100, 0);
-		player.moving = true
+		player.moving = true;
 	});
 	onKeyDown("up", () => {
 		player.move(0, -100);
-		player.moving = true
+		player.moving = true;
 	});
 	onKeyDown("down", () => {
 		player.move(0, 100);
-		player.moving = true
+		player.moving = true;
 	});
 	onKeyRelease("right", () => {
 		player.play("idle");
-		player.moving = false
+		player.moving = false;
 	});
 	onKeyRelease("left", () => {
 		player.play("idle");
-		player.moving = false
+		player.moving = false;
 	});
 	onKeyRelease("up", () => {
 		player.play("idle");
-		player.moving = false
+		player.moving = false;
 	});
 	onKeyRelease("down", () => {
 		player.play("idle");
-		player.moving = false
+		player.moving = false;
 	});
 };
 init();
