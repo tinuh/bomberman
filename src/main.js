@@ -31,7 +31,6 @@ const loadBg = async () => {
 };
 
 const init = async () => {
-	await loadBg();
 
 	// load assets
 	loadSprite("bean", "sprites/bean.png");
@@ -70,6 +69,11 @@ const init = async () => {
 		},
 	});
 	loadSprite("breakableStone", "sprites/brick1.png");
+	loadSprite("bombs", "sprites/bomb.png");
+	scene("game", async () =>{
+	//Wrap things inside the game
+	await loadBg();
+
 	const score = add([
 		pos(90, 10),
 		z(1),
@@ -80,7 +84,6 @@ const init = async () => {
 		}),
 		{ value: 0 },
 	]);
-	loadSprite("bombs", "sprites/bomb.png");
 	add([sprite("bombs"), scale(0.175), pos(250, 0)]);
 	const bombs = add([
 		pos(290, 10),
@@ -431,5 +434,7 @@ const init = async () => {
 		player.play("idle");
 		player.moving = false;
 	});
+})
+go("game")
 };
 init();
