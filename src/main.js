@@ -96,9 +96,9 @@ const init = async () => {
 		}),
 		{ value: 3 },
 	]);
-	add([sprite("heart"), scale(2), pos(300, -15)]);
+	add([sprite("heart"), scale(2), pos(315, -15)]);
 	const playerHealth = add([
-		pos(355, 10),
+		pos(370, 10),
 		z(1),
 		text("10", {
 			size: 24,
@@ -116,9 +116,9 @@ const init = async () => {
 
 	let levels = [[
 		"===============",
-		"=  =    ^  =  =",
-		"=    ^        =",
-		"===       ^   =",
+		"=  =  = ^  =  =",
+		"=    ^=       =",
+		"===       ^==^=",
 		"=     ==  ^   =",
 		"=  =^      =  =",
 		"=    ^ =     ==",
