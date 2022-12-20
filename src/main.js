@@ -88,6 +88,16 @@ const init = async () => {
 	const bombs = add([
 		pos(290, 10),
 		z(1),
+		text("3", {
+			size: 24,
+			width: 320,
+			font: "sink",
+		}),
+		{ value: 3 },
+	]);
+	const playerHealth = add([
+		pos(500, 10),
+		z(1),
 		text("10", {
 			size: 24,
 			width: 320,
@@ -96,7 +106,7 @@ const init = async () => {
 		{ value: 10 },
 	]);
 	setInterval(() => {
-		if (bombs.value < 10) {
+		if (bombs.value < 3) {
 			bombs.value++;
 			bombs.text = bombs.value;
 		}
@@ -155,6 +165,7 @@ const init = async () => {
 			frame_max: 4,
 			anim_timer: 0,
 			move_anim_speed: 10,
+			damage_down: 0,
 		},
 	]);
 
@@ -168,6 +179,7 @@ const init = async () => {
 			"pain",
 			"mobile",
 			pos(x, y),
+			z(3),
 			origin("center"),
 			area({ width: 15, height: 12 }),
 			origin(vec2(0, 0.25)),
@@ -302,9 +314,17 @@ const init = async () => {
 	});
 
 	player.onCollide("pain", () => {
-		player.hurt(1);
-		player.color = { r: 255, b: 0, g: 0 };
-		wait(0.2, () => (player.color = { r: 255, b: 255, g: 255 }));
+		if(player.damage_down <= 0){
+			playerHealth.value -= 1
+			playerHealth.text = playerHealth.value
+			player.hurt(1);
+			player.color = { r: 255, b: 0, g: 0 };
+			player.damage_down = 1
+			wait(0.2, () => {
+				player.color = { r: 255, b: 255, g: 255 }
+				player.damage_down = 0
+			});
+		}
 	});
 
 	player.on("death", () => {
@@ -346,10 +366,10 @@ const init = async () => {
 			b.time += 1;
 			if (b.time < 10) {
 				b.move(pointAt(300, b.angle));
-			} else if (b.time > 30 && b.time < 80) {
+			} else if (b.time > 30 && b.time < 70) {
 				b.scale.x = b.scale.x * 0.9;
 				b.scale.y = b.scale.y * 0.9;
-			} else if (b.time > 80) {
+			} else if (b.time > 70) {
 				destroy(b);
 			}
 		}
