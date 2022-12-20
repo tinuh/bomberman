@@ -78,7 +78,7 @@ const init = async () => {
 	const score = add([
 		pos(90, 10),
 		z(1),
-		text("Score: 0", {
+		text("Score:0", {
 			size: 24, // 48 pixels tall
 			width: 320, // it'll wrap to next line when width exceeds this value
 			font: "sink", // there're 4 built-in fonts: "apl386", "apl386o", "sink", and "sinko"
@@ -308,7 +308,7 @@ const init = async () => {
 			slime.dead = true;
 			slime.play("death");
 			score.value += 1;
-			score.text = `Score: ${score.value}`;
+			score.text = `Score:${score.value}`;
 			wait(0.8, () => {
 				destroy(slime);
 			});
