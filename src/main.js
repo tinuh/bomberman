@@ -71,7 +71,7 @@ const init = async () => {
 	loadSprite("breakableStone", "sprites/brick1.png");
 	loadSprite("bombs", "sprites/bomb.png");
 	loadSprite("heart", "sprites/heart.png");
-	scene("game", async () =>{
+	scene("game", async ({level}) =>{
 	//Wrap things inside the game
 	await loadBg();
 
@@ -114,7 +114,7 @@ const init = async () => {
 		}
 	}, 2000);
 
-	let level1 = [
+	let levels = [[
 		"===============",
 		"=  =    ^  =  =",
 		"=    ^        =",
@@ -124,9 +124,19 @@ const init = async () => {
 		"=    ^ =     ==",
 		"= ^    =  =   =",
 		"===============",
-	];
+	],[
+		"===============",
+		"=   =    =    =",
+		"=^^ ===^      =",
+		"= = =     ^== =",
+		"=         ^   =",
+		"==   ==      ^=",
+		"=^^  ^      = =",
+		"=     =^=     =",
+		"===============",
+	]]
 
-	addLevel(level1, {
+	addLevel(levels[level], {
 		width: 70,
 		height: 70,
 		"=": () => [
@@ -349,6 +359,7 @@ const init = async () => {
 			},
 		]);
 		death.play("death");
+		wait(3, async () => {await go("game", {level: 1})})
 	});
 
 	onUpdate("boom", (b) => {
@@ -459,6 +470,6 @@ const init = async () => {
 		player.moving = false;
 	});
 })
-go("game")
+go("game", {level: 0})
 };
 init();
