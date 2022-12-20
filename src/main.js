@@ -70,6 +70,7 @@ const init = async () => {
 	});
 	loadSprite("breakableStone", "sprites/brick1.png");
 	loadSprite("bombs", "sprites/bomb.png");
+	loadSprite("heart", "sprites/heart.png");
 	scene("game", async () =>{
 	//Wrap things inside the game
 	await loadBg();
@@ -95,8 +96,9 @@ const init = async () => {
 		}),
 		{ value: 3 },
 	]);
+	add([sprite("heart"), scale(2), pos(300, -15)]);
 	const playerHealth = add([
-		pos(500, 10),
+		pos(355, 10),
 		z(1),
 		text("10", {
 			size: 24,
@@ -420,7 +422,9 @@ const init = async () => {
 	});
 
 	onKeyPress("space", () => {
-		placeBomb();
+		if(playerHealth.value > 0){
+			placeBomb();
+		}
 	});
 	onKeyDown("right", () => {
 		player.move(100, 0);
