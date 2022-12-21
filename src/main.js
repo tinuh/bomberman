@@ -71,6 +71,7 @@ const init = async () => {
 	loadSprite("breakableStone", "sprites/brick1.png");
 	loadSprite("bombs", "sprites/bomb.png");
 	loadSprite("heart", "sprites/heart.png");
+	loadSprite("tank", "sprites/tank.png")
 	scene("game", async ({level}) =>{
 	//Wrap things inside the game
 	await loadBg();
@@ -158,6 +159,12 @@ const init = async () => {
 		],
 	});
 
+	//Direction function, from Replit Kaboom Guide
+	function pointAt(distance, angle) {
+		let radians = -1 * deg2rad(angle);
+		return vec2(distance * Math.cos(radians), -distance * Math.sin(radians));
+	}
+
 	// add a character to screen
 	const player = add([
 		// list of components
@@ -178,6 +185,31 @@ const init = async () => {
 			anim_timer: 0,
 			move_anim_speed: 10,
 			damage_down: 0,
+		},
+	]);
+
+	turret = add([
+		sprite("tank", {
+			animSpeed: 1,
+		}),
+		"enemy",
+		"turret",
+		"pain",
+		pos(300, 300),
+		z(3),
+		origin("center"),
+		area({ width: 15, height: 12 }),
+		origin(vec2(0, 0.25)),
+		scale(0.2),
+		solid(),
+		{
+			moveDir: RIGHT,
+			dead: false,
+			oneMove: 0,
+			moving: true,
+			frame_max: 4,
+			anim_timer: 0,
+			move_anim_speed: 8,
 		},
 	]);
 
@@ -275,11 +307,6 @@ const init = async () => {
 		}
 	}
 
-	function pointAt(distance, angle) {
-		let radians = -1 * deg2rad(angle);
-		return vec2(distance * Math.cos(radians), -distance * Math.sin(radians));
-	}
-
 	onCollide("player", "boom", () => {
 		console.log("death");
 	});
@@ -361,6 +388,10 @@ const init = async () => {
 		death.play("death");
 		wait(3, async () => {await go("game", {level: 1})})
 	});
+
+	onUpdate("turret", (t) => {
+		t.angle = Math.atan((t.pos.y-player.pos.y)/(t.pos.x-player.pos.x))
+	})
 
 	onUpdate("boom", (b) => {
 		if (!b.exploding) {
