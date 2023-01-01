@@ -70,9 +70,10 @@ const init = async () => {
 	});
 	loadSprite("breakableStone", "sprites/brick1.png");
 	loadSprite("bombs", "sprites/bomb.png");
+	loadSprite("laser", "sprites/laser.png");
 	loadSprite("heart", "sprites/heart.png");
 	loadSprite("tank", "sprites/tank.png")
-	scene("game", async ({level}) =>{
+	scene("game", async ({level}) => {
 	//Wrap things inside the game
 	await loadBg();
 
@@ -117,7 +118,7 @@ const init = async () => {
 
 	let levels = [[
 		"===============",
-		"=  =  = ^  =  =",
+		"=  =  = ^  = x=",
 		"=    ^=       =",
 		"===       ^==^=",
 		"=     ==  ^   =",
@@ -157,6 +158,32 @@ const init = async () => {
 			scale(0.16, 0.17),
 			solid(),
 		],
+		"x": () => [
+			sprite("tank", {
+				animSpeed: 1,
+			}),
+			"enemy",
+			"turret",
+			"pain",
+			pos(120, 80),
+			z(3),
+			origin("center"),
+			area({ width: 15, height: 12 }),
+			origin(vec2(0, 0.25)),
+			scale(0.2),
+			solid(),
+			{
+				moveDir: RIGHT,
+				dead: false,
+				oneMove: 0,
+				moving: true,
+				frame_max: 4,
+				anim_timer: 0,
+				move_anim_speed: 8,
+				shoot_time: 0,
+				shoot_speed: 100,
+			},
+		],
 	});
 
 	//Direction function, from Replit Kaboom Guide
@@ -185,31 +212,6 @@ const init = async () => {
 			anim_timer: 0,
 			move_anim_speed: 10,
 			damage_down: 0,
-		},
-	]);
-
-	turret = add([
-		sprite("tank", {
-			animSpeed: 1,
-		}),
-		"enemy",
-		"turret",
-		"pain",
-		pos(300, 300),
-		z(3),
-		origin("center"),
-		area({ width: 15, height: 12 }),
-		origin(vec2(0, 0.25)),
-		scale(0.2),
-		solid(),
-		{
-			moveDir: RIGHT,
-			dead: false,
-			oneMove: 0,
-			moving: true,
-			frame_max: 4,
-			anim_timer: 0,
-			move_anim_speed: 8,
 		},
 	]);
 
@@ -390,7 +392,33 @@ const init = async () => {
 	});
 
 	onUpdate("turret", (t) => {
-		t.angle = Math.atan((t.pos.y-player.pos.y)/(t.pos.x-player.pos.x))
+		let a = Math.atan2(player.pos.y - t.pos.y, player.pos.x - t.pos.x)*(180/Math.PI)
+		t.angle = a+90
+		t.shoot_time -= 1
+		if(t.shoot_time <= 0){
+			t.shoot_time = t.shoot_speed
+			add([
+				// list of components
+				sprite("laser", {
+					animSpeed: 5,
+				}),
+				"laser",
+				"pain",
+				pos(t.pos.x, t.pos.y),
+				area({ width: 5, height: 5 }),
+				origin("center"),
+				scale(2),
+				cleanup(),
+				{
+					angle: a,
+					bulletSpeed: 200,
+				},
+			]);
+		}
+	})
+
+	onUpdate("laser", (laser) => {
+		laser.move(pointAt(laser.bulletSpeed, laser.angle))
 	})
 
 	onUpdate("boom", (b) => {
