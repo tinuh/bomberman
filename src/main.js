@@ -120,21 +120,21 @@ const init = async () => {
 		"===============",
 		"=  =  = ^  = x=",
 		"=    ^=       =",
-		"===       ^==^=",
-		"=     ==  ^   =",
-		"=  =^      =  =",
-		"=    ^ =     ==",
-		"= ^    =  =   =",
+		"===    s  ^==^=",
+		"=s    ==  ^   =",
+		"=  =^ s    =  =",
+		"=    ^ =  s  ==",
+		"= ^    =s =  s=",
 		"===============",
 	],[
 		"===============",
 		"=   =    =    =",
-		"=^^  ==^      =",
+		"=^^  ==^   s  =",
 		"= = =     ^== =",
-		"=         ^   =",
+		"= s    s  ^   =",
 		"==   ==      ^=",
-		"=^^  ^      = =",
-		"=     =^=     =",
+		"=^^s ^      = =",
+		"=     =^= s   =",
 		"===============",
 	]]
 
@@ -157,6 +157,31 @@ const init = async () => {
 			area(),
 			scale(0.16, 0.17),
 			solid(),
+		],
+		"s": () => [
+			sprite("slime", {
+				animSpeed: 1,
+			}),
+			"enemy",
+			"slime",
+			"pain",
+			"mobile",
+			pos(100, 100),
+			z(3),
+			origin("center"),
+			area({ width: 15, height: 12 }),
+			origin(vec2(0, 0.25)),
+			scale(3),
+			solid(),
+			{
+				moveDir: RIGHT,
+				dead: false,
+				oneMove: 0,
+				moving: true,
+				frame_max: 4,
+				anim_timer: 0,
+				move_anim_speed: 8,
+			},
 		],
 		"x": () => [
 			sprite("tank", {
@@ -256,10 +281,10 @@ const init = async () => {
 			x = Math.random() * 1000;
 			y = Math.random() * 600;
 		}
-		addSlime(200 + Math.random() * 400, 200 + Math.random() * 200);
+		//addSlime(200 + Math.random() * 400, 200 + Math.random() * 200);
 	}, 8000);
 
-	addSlime(1000, 600);
+	//addSlime(1000, 600);
 
 	function placeBomb() {
 		if (bombs.value <= 0) return;
