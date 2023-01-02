@@ -68,24 +68,33 @@ const init = async () => {
 			death: { from: 28, to: 32 },
 		},
 	});
+	loadSprite("tankDeath", "sprites/tankDeath.png", {
+		sliceX: 4,
+		sliceY: 1,
+		anims: {
+			death: { from: 0, to: 3 },
+		},
+	});
 	loadSprite("breakableStone", "sprites/brick1.png");
 	loadSprite("bombs", "sprites/bomb.png");
 	loadSprite("laser", "sprites/laser.png");
 	loadSprite("heart", "sprites/heart.png");
 	loadSprite("tank", "sprites/tank.png")
-	scene("game", async ({level}) => {
+	scene("game", async ({level, scoreNum, playerHP}) => {
 	//Wrap things inside the game
 	await loadBg();
+
+	console.log("NewHP", playerHP)
 
 	const score = add([
 		pos(90, 10),
 		z(1),
-		text("Score:0", {
+		text("Score:" + scoreNum, {
 			size: 24, // 48 pixels tall
 			width: 320, // it'll wrap to next line when width exceeds this value
 			font: "sink", // there're 4 built-in fonts: "apl386", "apl386o", "sink", and "sinko"
 		}),
-		{ value: 0 },
+		{ value: scoreNum },
 	]);
 	add([sprite("bombs"), scale(0.175), pos(250, 0)]);
 	const bombs = add([
@@ -102,12 +111,12 @@ const init = async () => {
 	const playerHealth = add([
 		pos(370, 10),
 		z(1),
-		text("10", {
+		text(playerHP, {
 			size: 24,
 			width: 320,
 			font: "sink",
 		}),
-		{ value: 10 },
+		{ value: playerHP },
 	]);
 	setInterval(() => {
 		if (bombs.value < 3) {
@@ -118,9 +127,19 @@ const init = async () => {
 
 	let levels = [[
 		"===============",
+		"=   =    =    =",
+		"=^^  ==^ ^ s  =",
+		"= = = ^  ^^==^=",
+		"= s   ^s  ^   =",
+		"==   ==  ^   ^=",
+		"=^^s ^   ^  = =",
+		"=     =^= s   =",
+		"===============",
+	],[
+		"===============",
 		"=  =  = ^  = x=",
 		"=    ^=       =",
-		"===    s  ^==^=",
+		"===    s  ^^=^=",
 		"=s    ==  ^   =",
 		"=  =^ s    =  =",
 		"=    ^ =  s  ==",
@@ -128,13 +147,43 @@ const init = async () => {
 		"===============",
 	],[
 		"===============",
-		"=   =    =    =",
-		"=^^  ==^   s  =",
-		"= = =     ^== =",
-		"= s    s  ^   =",
-		"==   ==      ^=",
-		"=^^s ^      = =",
-		"=     =^= s   =",
+		"=   =      ^  =",
+		"=     = ^=   ^=",
+		"==    =   ^  ^=",
+		"= ^^  =    x  =",
+		"=    =^  ==   =",
+		"==  x    =  ^ =",
+		"=   =^   ^ x  =",
+		"===============",
+	],[
+		"===============",
+		"=  ^ ^ ^  s^^^=",
+		"=  ^ ^ ^^^^^ ^=",
+		"=^^^ ^s^  ^  ^=",
+		"= s  ^ ^  ^s^^=",
+		"=^^^^^^^ s^ ^ =",
+		"=  s   ^^^^^^ =",
+		"=  ^^^^^s^   x=",
+		"===============",
+	],[
+		"===============",
+		"=     =       =",
+		"=== === == == =",
+		"=    s= =s  =s=",
+		"= =====x=== ===",
+		"= =  s==      =",
+		"=   ===  = = ==",
+		"= =     =s = s=",
+		"===============",
+	],[
+		"===============",
+		"=             =",
+		"=             =",
+		"=             =",
+		"=             =",
+		"=             =",
+		"=             =",
+		"=             =",
 		"===============",
 	]]
 
@@ -193,7 +242,7 @@ const init = async () => {
 			pos(120, 80),
 			z(3),
 			origin("center"),
-			area({ width: 15, height: 12 }),
+			area({ width: 200, height: 200 }),
 			origin(vec2(0, 0.25)),
 			scale(0.2),
 			solid(),
@@ -211,6 +260,45 @@ const init = async () => {
 		],
 	});
 
+	onCollide("turret", "boom", (turret) => {
+		if (turret.dead === false) {
+			turret.dead = true;
+			enemyCount -= 1
+			const tankDeath = add([
+				// list of components
+				sprite("tankDeath", {
+					animSpeed: 1,
+				}),
+				"turret",
+				pos(turret.pos.x, turret.pos.y),
+				health(10),
+				origin(vec2(0, 0.25)),
+				area(),
+				scale(0.2),
+				{
+					moving: true,
+					frame_max: 3,
+					anim_timer: 0,
+					move_anim_speed: 4,
+				},
+			]);
+			destroy(turret)
+			tankDeath.play("death");
+			wait(0.8, () => {
+				destroy(tankDeath);
+			});
+			score.value += 3;
+			score.text = `Score:${score.value}`;
+		}
+	});
+
+	let enemyCount = 0
+	for(let i = 0; i<levels[level].length; i++){
+		enemyCount += levels[level][i].split("s").length - 1
+		enemyCount += levels[level][i].split("x").length - 1
+	}
+	console.log(enemyCount)
+
 	//Direction function, from Replit Kaboom Guide
 	function pointAt(distance, angle) {
 		let radians = -1 * deg2rad(angle);
@@ -226,7 +314,7 @@ const init = async () => {
 		"player",
 		"mobile",
 		pos(180, 140),
-		health(10),
+		health(playerHP),
 		origin("center"),
 		area(),
 		scale(3),
@@ -241,6 +329,7 @@ const init = async () => {
 	]);
 
 	const addSlime = (x, y) => {
+		enemyCount += 1
 		add([
 			sprite("slime", {
 				animSpeed: 1,
@@ -268,6 +357,7 @@ const init = async () => {
 		]);
 	};
 
+	//Setinterval method for if slimes spawn constantly
 	setInterval(() => {
 		let x = Math.random() * 1000;
 		let y = Math.random() * 600;
@@ -370,6 +460,7 @@ const init = async () => {
 	onCollide("slime", "boom", (slime) => {
 		if (slime.dead === false) {
 			slime.dead = true;
+			enemyCount -= 1
 			slime.play("death");
 			score.value += 1;
 			score.text = `Score:${score.value}`;
@@ -379,7 +470,7 @@ const init = async () => {
 		}
 	});
 
-	player.onCollide("pain", () => {
+	player.onCollide("pain", (pain) => {
 		if(player.damage_down <= 0){
 			playerHealth.value -= 1
 			playerHealth.text = playerHealth.value
@@ -390,6 +481,9 @@ const init = async () => {
 				player.color = { r: 255, b: 255, g: 255 }
 				player.damage_down = 0
 			});
+		}
+		if(pain.is("laser")){
+			destroy(pain)
 		}
 	});
 
@@ -413,14 +507,43 @@ const init = async () => {
 			},
 		]);
 		death.play("death");
-		wait(3, async () => {await go("game", {level: 1})})
+		const NICE = add([
+			pos(300, 240),
+			z(1),
+			text("GAME OVER", {
+				size: 100,
+				width: 700,
+				font: "sink",
+			}),
+		]);
+		wait(3, async () => {await go("game", {level: 0, scoreNum:0, playerHP:10})})
 	});
+
+	onUpdate(() => {
+		if(enemyCount <= 0){
+			enemyCount = 10000
+			const NICE = add([
+				pos(290, 240),
+				z(1),
+				text(" MISSION COMPLETED", {
+					size: 100,
+					width: 700,
+					font: "sink",
+				}),
+			]);
+			let NextLvl = level + 1 < levels.length ? level + 1 : 0
+			wait(3, async () => {
+				console.log("Score", scoreNum)
+				await go("game", {level: NextLvl, scoreNum:score.value, playerHP:playerHealth.value})
+			})
+		}
+	})
 
 	onUpdate("turret", (t) => {
 		let a = Math.atan2(player.pos.y - t.pos.y, player.pos.x - t.pos.x)*(180/Math.PI)
 		t.angle = a+90
 		t.shoot_time -= 1
-		if(t.shoot_time <= 0){
+		if(t.shoot_time <= 0 && !t.dead){
 			t.shoot_time = t.shoot_speed
 			add([
 				// list of components
@@ -554,6 +677,6 @@ const init = async () => {
 		player.moving = false;
 	});
 })
-go("game", {level: 0})
+go("game", {level: 0, scoreNum:0, playerHP:10})
 };
 init();
