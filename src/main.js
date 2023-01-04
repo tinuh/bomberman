@@ -576,10 +576,10 @@ const init = async () => {
 			b.time += 1;
 			if (b.time < 10) {
 				b.move(pointAt(300, b.angle));
-			} else if (b.time > 30 && b.time < 70) {
+			} else if (b.time > 30 && b.time < 60) {
 				b.scale.x = b.scale.x * 0.9;
 				b.scale.y = b.scale.y * 0.9;
-			} else if (b.time > 70) {
+			} else if (b.time > 60) {
 				destroy(b);
 			}
 		}
